@@ -186,6 +186,11 @@ export const SignInView = () => {
                   <div className="grid grid-cols-2 gap-4 animate-slideUp animation-delay-600">
                     <Button
                       disabled={loading}
+                      onClick={()=>{
+                        authClient.signIn.social({
+                          provider:"google"
+                        })
+                      }}
                       variant="outline"
                       type="button"
                       className="bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
@@ -200,6 +205,11 @@ export const SignInView = () => {
                     </Button>
                     <Button
                       disabled={loading}
+                      onClick={()=>{
+                        authClient.signIn.social({
+                          provider:"github"
+                        })
+                      }}
                       variant="outline"
                       type="button"
                       className="bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300 transform hover:scale-105"

@@ -86,8 +86,8 @@ export const SignUpView = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-gradient-to-r from-green-400 to-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-gradient-to-r from-red-400 to-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-gradient-to-r from-yellow-200 to-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
@@ -304,6 +304,11 @@ export const SignUpView = () => {
                   {/* Social Buttons */}
                   <div className="grid grid-cols-2 gap-4 animate-slideUp animation-delay-800">
                     <Button
+                    onClick={()=>{
+                        authClient.signIn.social({
+                          provider:"google"
+                        })
+                      }}
                       disabled={loading}
                       variant="outline"
                       type="button"
@@ -318,6 +323,11 @@ export const SignUpView = () => {
                       Google
                     </Button>
                     <Button
+                    onClick={()=>{
+                        authClient.signIn.social({
+                          provider:"github"
+                        })
+                      }}
                       disabled={loading}
                       variant="outline"
                       type="button"
