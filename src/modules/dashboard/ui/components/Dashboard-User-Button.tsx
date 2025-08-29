@@ -10,9 +10,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  Drawer,
+  DrawerContent, DrawerHeader,
+   DrawerTrigger ,
+   DrawerClose, DrawerFooter,
+   DrawerTitle, DrawerDescription 
+} from "@/components/ui/drawer"
+import { useIsMobile } from "@/hooks/use-mobile"
+
 
 export const DashboardUserButton = () => {
   const router = useRouter();
+  const isMobile=useIsMobile();
   const { data, isPending } = authClient.useSession()
   const onLogout = () => {
     authClient.signOut({
@@ -26,6 +36,46 @@ export const DashboardUserButton = () => {
 
   if (isPending || !data?.user) {
     return null
+  }
+  if(isMobile){
+    return (
+  <Drawer>
+    {/* Trigger */}
+    <DrawerTrigger className="rounded-lg border border-slate-600/50 px-3 py-2 w-full flex items-center gap-3 bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-sm overflow-hidden text-left transition-all duration-300">
+      <Avatar className="h-10 w-10 border-2 border-slate-600/50">
+        <AvatarFallback className="bg-slate-700 text-slate-100">U</AvatarFallback>
+      </Avatar>
+      <div className="flex flex-col overflow-hidden">
+        <span className="text-sm font-medium truncate text-slate-100">{data.user.name}</span>
+        <span className="text-xs text-slate-400 truncate">{data.user.email}</span>
+      </div>
+    </DrawerTrigger>
+
+    {/* Drawer Content */}
+    <DrawerContent className="bg-slate-900 text-slate-100">
+      <DrawerHeader>
+        <DrawerTitle>{data.user.name}</DrawerTitle>
+        <DrawerDescription>{data.user.email}</DrawerDescription>
+      </DrawerHeader>
+
+      <div className="px-4 py-2 space-y-2">
+        <button className="w-full rounded-md px-3 py-2 bg-slate-800 hover:bg-slate-700 transition">
+          Profile
+        </button>
+        <button className="w-full rounded-md px-3 py-2 bg-slate-800 hover:bg-slate-700 transition">
+          Settings
+        </button>
+      </div>
+
+      <DrawerFooter>
+        <DrawerClose className="w-full rounded-md px-3 py-2 bg-red-600 hover:bg-red-700 transition">
+          
+        </DrawerClose>
+      </DrawerFooter>
+    </DrawerContent>
+  </Drawer>
+);
+
   }
 
   const user = data.user
