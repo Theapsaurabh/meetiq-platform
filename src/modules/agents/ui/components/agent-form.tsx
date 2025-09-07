@@ -1,6 +1,6 @@
 import { useTRPC } from "@/trpc/client";
 import { AgentGetOne } from "../../types";
-import { useRouter } from "next/navigation";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { agentCreateSchema } from "../../schemas";
@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { toast } from "sonner";
 
 interface AgentFormProps {
   onSuccess: () => void;
@@ -28,11 +29,11 @@ interface AgentFormProps {
 
 export const AgentForm = ({
   onSuccess,
-  onCancel,
+ 
   initialValues,
 }: AgentFormProps) => {
   const trpc = useTRPC();
-  const router = useRouter();
+
   const queryClient = useQueryClient();
 
   const createAgent = useMutation(
@@ -41,8 +42,11 @@ export const AgentForm = ({
         queryClient.invalidateQueries({ queryKey: [["agents"]] });
         onSuccess();
       },
-      onError: () => {
-        // handle error here if needed
+      onError: (error) => {
+        
+        toast.error(error.message)
+        // TODO : Check if error code is "FORBIDDEN " redirect to "/upgrade "
+
       },
     })
   );
@@ -109,7 +113,7 @@ export const AgentForm = ({
         />
 
         <div className="flex justify-between gap-x-2">
-            {onCancel && (
+            { (
                 <Button variant="ghost"
                 disabled={isPending}
                 type="button"
