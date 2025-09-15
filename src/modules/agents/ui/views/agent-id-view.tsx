@@ -2,11 +2,18 @@
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { AgentIdViewHeader } from "../components/agent-id-view-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Badge } from "@/components/ui/badge"
 import { VideoIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { toast } from "sonner";
+import { useConfirm } from "@/hooks/use-confirm";
+import { UpdateAgentDialog } from "../components/update-agent-dialog";
+
 
 
 interface Props {
@@ -14,23 +21,64 @@ interface Props {
 }
 
 export const AgentIdView = ({ agentId }: Props) => {
+  const router= useRouter()
   const trpc = useTRPC();
+  const queryClient= useQueryClient()
 
+const [UpdateAgentDialogOpen, setUpdateDialogOpen ]= useState(false)
   // Correct hook for a single query
   const { data } = useSuspenseQuery(
     trpc.agents.getOne.queryOptions({ id:agentId })
   );
+
+  const removeAgents= useMutation(
+    trpc.agents.remove.mutationOptions({
+      onSuccess: async()=>{
+       await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
+      
+       router.push("/agents");
+
+
+      },
+      onError:(error)=>{
+        toast.error(error.message);
+
+      },
+
+
+    }),
+  )
+  const [RemoveConfirmation, confirmRemove]= useConfirm(
+    "Are you Sure ?",
+    `The following action will remove ${data.meetingCount} associated meetings`
+
+  );
+  const handleRemoveAgent= async()=>{
+    const ok= await confirmRemove();
+    if(!ok) return;
+    await removeAgents.mutateAsync({id:agentId});
+
+  };
+
   const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${
     data.name || "default"
   }`;
   return (
-    <div className=" flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4">
+    
+    <>
+    <UpdateAgentDialog
+    open= {UpdateAgentDialogOpen}
+    onOpenChange= {setUpdateDialogOpen}
+    initialValues={data}
+    />
+    <RemoveConfirmation/>
+     <div className=" flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4">
       <h2>Agent Details</h2>
       <AgentIdViewHeader
       agentId={agentId}
       agentName={data.name}
-      onEdit={()=>{}}
-      onRemove= {()=>{}}
+      onEdit={()=>setUpdateDialogOpen(true)}
+      onRemove= {handleRemoveAgent}
       
       />
       <div className="bg-white rounded-lg border">
@@ -62,6 +110,8 @@ export const AgentIdView = ({ agentId }: Props) => {
 
       </div>
     </div>
+    </>
+   
   );
 };
 

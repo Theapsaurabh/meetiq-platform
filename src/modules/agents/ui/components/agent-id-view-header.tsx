@@ -1,89 +1,82 @@
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbSeparator
-} from "@/components/ui/breadcrumb"
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuItem,
-    DropdownMenuContent
-
-} from "@/components/ui/dropdown-menu"
-import { ChevronsRightIcon, TrashIcon, PencilIcon, MoreVerticalIcon } from "lucide-react";
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
+import {
+  ChevronsRightIcon,
+  TrashIcon,
+  PencilIcon,
+  MoreVerticalIcon,
+} from "lucide-react";
 import Link from "next/link";
-interface Props{
-    agentId: string;
-    agentName: string;
-    onEdit: ()=>void;
-    onRemove:()=>void;
+
+interface Props {
+  agentId: string;
+  agentName: string;
+  onEdit: () => void;
+  onRemove: () => void;
 }
-export const AgentIdViewHeader= ({
-    agentId,
-    agentName,
-    onEdit,
-    onRemove
-}
-:Props)=>{
-    return (
-        <div className="flex items-center justify-between ">
-            <Breadcrumb>
-            <BreadcrumbList>
-            <BreadcrumbItem>
+
+export const AgentIdViewHeader = ({
+  agentId,
+  agentName,
+  onEdit,
+  onRemove,
+}: Props) => {
+  return (
+    <div className="flex items-center justify-between ">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
             <BreadcrumbLink asChild className="font-medium text-xl ">
-            <Link href="/agents">
-            My Agents 
-            </Link>
-
+              <Link href="/agents">My Agents</Link>
             </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="text-foreground text-xl font-medium [&>svg]:size-4 ">
-            <ChevronsRightIcon/>
-            </BreadcrumbSeparator>
-            <BreadcrumbItem>
-            <BreadcrumbLink asChild className="font-medium text-xl text-foreground">
-            <Link href={`/agents/${agentId}`}>
-             {agentName}
-            </Link>
+          </BreadcrumbItem>
 
+          <BreadcrumbSeparator className="text-foreground text-xl font-medium [&>svg]:size-4 ">
+            <ChevronsRightIcon />
+          </BreadcrumbSeparator>
+
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              asChild
+              className="font-medium text-xl text-foreground"
+            >
+              <Link href={`/agents/${agentId}`}>{agentName}</Link>
             </BreadcrumbLink>
-            </BreadcrumbItem>
-            </BreadcrumbList>
-            </Breadcrumb>
-            {/* Without modal= {false}, the dialog that this dropdown opens cause the website to get unlickable*/}
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-            <DropdownMenu modal={false}>
-                <DropdownMenuTrigger>
-                    <Button variant="ghost">
-                        <MoreVerticalIcon/>
+      {/* Action Menu */}
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">
+            <MoreVerticalIcon />
+          </Button>
+        </DropdownMenuTrigger>
 
-
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem onCanPlay={onEdit}>
-                        <PencilIcon className="size-4 text-black"/>
-                        Edit 
-
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onCanPlay={onRemove}>
-                        <TrashIcon className="size-4 text-black"/>
-                        Delete 
-
-                    </DropdownMenuItem>
-                    
-                    
-                </DropdownMenuContent>
-
-            </DropdownMenu>
-
-
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={onEdit}>
+            <PencilIcon className="size-4 text-black" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={onRemove}>
+            <TrashIcon className="size-4 text-black" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
-
-    )
-    
-
-}
+  );
+};
