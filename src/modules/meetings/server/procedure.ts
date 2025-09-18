@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { z } from "zod";
-import { and, desc, eq, getTableColumns, ilike,  count } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, count } from "drizzle-orm";
 import { meetings } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
@@ -11,31 +11,71 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 import { TRPCError } from "@trpc/server";
+import { meetingsCreateSchema } from "../schemss";
 
 export const meetingsRouter = createTRPCRouter({
   
+  create: protectedProcedure
+    .input(meetingsCreateSchema)
+    .mutation(async ({ input, ctx }) => {
+      const [createdMeetings] = await db
+        .insert(meetings)
+        .values({
+          ...input,
+          userId: ctx.auth.user.id,
+        })
+        .returning();
 
+      return createdMeetings;
+    }),
+
+  // ✅ Update
+  update: protectedProcedure
+    .input(
+      meetingsCreateSchema.extend({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, ...data } = input;
+
+      const [updatedMeeting] = await db
+        .update(meetings)
+        .set({
+          ...data,
+        })
+        .where(and(eq(meetings.id, id), eq(meetings.userId, ctx.auth.user.id)))
+        .returning();
+
+      if (!updatedMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      return updatedMeeting;
+    }),
+
+ 
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ input,ctx }) => {
+    .query(async ({ input, ctx }) => {
       const [existmeeting] = await db
         .select({
           ...getTableColumns(meetings),
-         
         })
         .from(meetings)
-        .where(and(
-          eq(meetings.id, input.id),
-          eq(meetings.userId, ctx.auth.user.id)
-        ));
-        if(!existmeeting){
-          throw new TRPCError({code: "NOT_FOUND", message: "Meetings not found"});
-          
-        }
+        .where(and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id)));
+
+      if (!existmeeting) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+      }
 
       return existmeeting;
     }),
 
+  
   getMany: protectedProcedure
     .input(
       z.object({
@@ -54,7 +94,6 @@ export const meetingsRouter = createTRPCRouter({
       const data = await db
         .select({
           ...getTableColumns(meetings),
-         
         })
         .from(meetings)
         .where(
@@ -88,6 +127,4 @@ export const meetingsRouter = createTRPCRouter({
         totalPages,
       };
     }),
-
-  
 });
