@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import { z } from "zod";
 import {
   Form,
@@ -24,7 +24,7 @@ import { meetingsCreateSchema } from "../../schemss";
 
 
 interface MeetingFormProps {
-  onSuccess: () => void;
+  onSuccess?: (id?:string) => void;
   onCancel: () => void;
   initialValues?: MeetingGetOne;
 }
@@ -42,11 +42,11 @@ export const MeetingForm = ({
 
   const createMeeting = useMutation(
     trpc.meetings.create.mutationOptions({
-      onSuccess: () => {
+      onSuccess:async (data) => {
         queryClient.invalidateQueries(
           trpc.meetings.getMany.queryOptions({})
         );
-        onSuccess();
+        onSuccess?.(data.id);
       },
       onError: (error) => {
         
@@ -101,19 +101,13 @@ export const MeetingForm = ({
   };
 
   
-  const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${
-    form.watch("name") || "default"
-  }`;
+  
 
   return (
     <Form {...form}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
        
-        <Avatar className="border w-16 h-16 rounded-full">
-          <AvatarImage src={avatarUrl} alt="Agent avatar" />
-          <AvatarFallback>...</AvatarFallback>
-        </Avatar>
-
+        
         <FormField
           name="name"
           control={form.control}
@@ -121,7 +115,7 @@ export const MeetingForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} placeholder="e.g Interviewer" />
               </FormControl>
               <FormMessage />
             </FormItem>
