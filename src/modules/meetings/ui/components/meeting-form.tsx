@@ -1,19 +1,24 @@
 import { useTRPC } from "@/trpc/client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation,  useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
 import { MeetingGetOne } from "../../types";
+import { CommandSelect } from "@/components/command-select";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 
+
 import { z } from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,7 +26,12 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { meetingsCreateSchema } from "../../schemss";
+import { useState } from "react";
 
+import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
+
+
+ 
 
 interface MeetingFormProps {
   onSuccess?: (id?:string) => void;
@@ -37,6 +47,16 @@ export const MeetingForm = ({
   const trpc = useTRPC();
 
   const queryClient = useQueryClient();
+  const [openNewAgentDialog,setOpenNewAgentDialog]= useState(false)
+  const [agentSearch, setAgentSearch]= useState("");
+
+  const agents= useQuery(
+    trpc.agents.getMany.queryOptions({
+      pageSize:100,
+      search:agentSearch,
+
+    })
+  );
    
 
 
@@ -85,7 +105,9 @@ export const MeetingForm = ({
      agentId: initialValues?.agentId,
     },
   });
-
+const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${
+    form.watch("name") || "default"
+  }`;
   const isEdit = !!initialValues?.id;
   const isPending = createMeeting.isPending || UpdateMeeting.isPending;
 
@@ -104,6 +126,8 @@ export const MeetingForm = ({
   
 
   return (
+    <>
+    <NewAgentDialog open={openNewAgentDialog} onOpenChange={setOpenNewAgentDialog}/>
     <Form {...form}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
        
@@ -122,12 +146,58 @@ export const MeetingForm = ({
           )}
         />
 
+        <FormField
+          name="agentId"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Agent</FormLabel>
+              <FormControl>
+               <CommandSelect
+               options={(agents.data?.items ?? []).map((agent)=>({
+                id:agent.id,
+                value:agent.id,
+                children:(
+                  <div className="flex items-center gap-x-2 ">
+                     <Avatar className="border w-16 h-16 rounded-full">
+          <AvatarImage src={avatarUrl} alt="Agent avatar" />
+          <AvatarFallback>...</AvatarFallback>
+        </Avatar>
+        <span>{agent.name}</span>
+
+                  </div>
+                )
+
+               }))}
+               onSelect={field.onChange}
+               onSearch={setAgentSearch}
+               value={field.value}
+               placeholder="Select an Agent"
+               />
+              </FormControl>
+              <FormDescription>
+                Not found what you&apos;re looking for ? {" "}
+                <button
+                type="button"
+                className="text-primary hover:underline "
+                onClick={()=> setOpenNewAgentDialog(true)}
+                >
+                  Create New Agents
+                </button>
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+
         
 
         <div className="flex justify-between gap-x-2">
             { (
                 <Button variant="ghost"
                 disabled={isPending}
+                
                 type="button"
                 >
                     Cancel
@@ -142,5 +212,7 @@ export const MeetingForm = ({
         </div>
       </form>
     </Form>
+    </>
+    
   );
 };

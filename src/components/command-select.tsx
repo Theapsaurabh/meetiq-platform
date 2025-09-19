@@ -37,10 +37,11 @@ export const CommandSelect= ({
 
 }: Props)=>{
     const [open, setOpen]= useState(false);
-    const selectedOption= options.find((options)=>option.value=== value);
+    const selectedOption= options.find((options)=>options.value=== value);
     return (
         <>
         <Button
+        onClick={()=>setOpen(true)}
            type="button"
            variant="outline"
            className={
@@ -59,8 +60,10 @@ export const CommandSelect= ({
             <ChevronsUpDown/>
         </Button>
         <CommandResponsiveDialog
+        shouldFilter= {!onSearch}
         open={open}
         onOpenChange={setOpen}
+
 
         >
             <CommandInput placeholder="Search..." onValueChange={onSearch}/>
