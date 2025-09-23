@@ -6,6 +6,7 @@ import { LoadingState } from "@/components/loading-state";
 import { useTRPC } from "@/trpc/client"
 import {  useSuspenseQuery } from "@tanstack/react-query";
 import { columns } from "../components/column";
+import { EmptyState } from "@/components/empty-state";
 
 
 export const MeetingsView=()=>{
@@ -17,6 +18,13 @@ export const MeetingsView=()=>{
            <DataTable data={data.items}
            columns={columns}
            />
+           {data.items.length=== 0 && (
+                   <EmptyState
+                     title="No Meetings available, Create your First Meetings "
+                     description="You haven’t added any Meetings yet. Start by creating your first one."
+                     
+                   />
+                 )}
            
 
 
