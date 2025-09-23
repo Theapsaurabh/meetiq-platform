@@ -85,7 +85,7 @@ export const meetingsStatus= pgEnum("meeting_status",[
 export const meetings= pgTable("meetings", {
   id: text("id").primaryKey().$defaultFn(()=>nanoid()),
   name: text("name").notNull(),
-  userId: text("agent_id").notNull().references(()=>agents.id, {onDelete: "cascade"}),
+  userId: text("user_id").notNull().references(()=>user.id, {onDelete: "cascade"}),
   agentId: text("agent_id").notNull().references(()=>agents.id, {onDelete: "cascade"}),
   status:meetingsStatus("status").notNull().default("upcoming"),
   

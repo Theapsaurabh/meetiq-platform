@@ -1,9 +1,11 @@
 "use client"
 
+import { DataTable } from "@/components/data-table";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { useTRPC } from "@/trpc/client"
 import {  useSuspenseQuery } from "@tanstack/react-query";
+import { columns } from "../components/column";
 
 
 export const MeetingsView=()=>{
@@ -12,8 +14,10 @@ export const MeetingsView=()=>{
 
     return (
         <div className="overflow-x-scroll ">
-           TODO: Data Table
-           {JSON.stringify(data)}
+           <DataTable data={data.items}
+           columns={columns}
+           />
+           
 
 
         </div>

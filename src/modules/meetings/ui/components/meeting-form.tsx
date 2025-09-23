@@ -25,7 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { meetingsCreateSchema } from "../../schemss";
+import {meetingsInsertSchema} from "../../schems";
 import { useState } from "react";
 
 import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
@@ -98,8 +98,8 @@ export const MeetingForm = ({
     })
   );
 
-  const form = useForm<z.infer<typeof meetingsCreateSchema>>({
-    resolver: zodResolver(meetingsCreateSchema),
+  const form = useForm<z.infer<typeof meetingsInsertSchema>>({
+    resolver: zodResolver(meetingsInsertSchema),
     defaultValues: {
       name: initialValues?.name ?? "",
      agentId: initialValues?.agentId,
@@ -111,7 +111,7 @@ const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${
   const isEdit = !!initialValues?.id;
   const isPending = createMeeting.isPending || UpdateMeeting.isPending;
 
-  const onSubmit = (values: z.infer<typeof meetingsCreateSchema>) => {
+  const onSubmit = (values: z.infer<typeof meetingsInsertSchema>) => {
     if (isEdit) {
       UpdateMeeting.mutate({
         ...values,

@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { z } from "zod";
 import { and, desc, eq, getTableColumns, ilike, count } from "drizzle-orm";
-import { meetings } from "@/db/schema";
+import { agents, meetings } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 import {
@@ -11,12 +11,12 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 import { TRPCError } from "@trpc/server";
-import { meetingsCreateSchema } from "../schemss";
+import { meetingsInsertSchema, meetingsUpdateSchema } from "../schems";
 
 export const meetingsRouter = createTRPCRouter({
   
   create: protectedProcedure
-    .input(meetingsCreateSchema)
+    .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
       const [createdMeetings] = await db
         .insert(meetings)
@@ -33,9 +33,7 @@ export const meetingsRouter = createTRPCRouter({
   // ✅ Update
   update: protectedProcedure
     .input(
-      meetingsCreateSchema.extend({
-        id: z.string(),
-      })
+      meetingsUpdateSchema
     )
     .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
@@ -94,9 +92,12 @@ export const meetingsRouter = createTRPCRouter({
 
       const data = await db
         .select({
+
           ...getTableColumns(meetings),
+          
         })
         .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(
             eq(meetings.userId, ctx.auth.user.id),
@@ -112,6 +113,7 @@ export const meetingsRouter = createTRPCRouter({
           count: count(),
         })
         .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(
             eq(meetings.userId, ctx.auth.user.id),
