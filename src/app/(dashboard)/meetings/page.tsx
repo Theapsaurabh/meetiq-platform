@@ -7,8 +7,17 @@ import { MeetingsListHeader } from "@/modules/meetings/ui/components/meetings-li
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { loadSearchParams } from "@/modules/meetings/params";
+import type { SearchParams } from "nuqs";
 
-export default async function Page() {
+
+interface Props{
+  searchParams: Promise<SearchParams>
+
+}
+export default async function Page({searchParams}:Props) {
+  const params= await loadSearchParams(searchParams);
+
   const session= await auth.api.getSession({
         headers: await headers()
       });
@@ -19,7 +28,9 @@ export default async function Page() {
 
   
   void queryClient.prefetchQuery(
-    trpc.meetings.getMany.queryOptions({})
+    trpc.meetings.getMany.queryOptions({
+      ...params
+    })
   );
 
   return (

@@ -1,10 +1,16 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, XCircleIcon } from "lucide-react";
 import { NewMeetingDialog } from "./new-meetings-dialog";
 import { useState } from "react";
 import { MeetingSearchFilters } from "./meetings-search-filter";
+import { StatusFilter } from "./status-filter";
+import { AgentIdFilter } from "./agent-id-filter";
+import { useMeetingsFilters } from "../../hooks/use-Meetings-filters";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollBar } from "@/components/ui/scroll-area";
+
 
 
 
@@ -12,7 +18,18 @@ import { MeetingSearchFilters } from "./meetings-search-filter";
 
 
 export const MeetingsListHeader=()=>{
+    const [filters, setFilters]= useMeetingsFilters()
     const [isDialogOpen, setIsDialogOpen]= useState(false);
+    const isAnyFilterModified= !!filters.status || !!filters.agentId || !!filters.search;
+    const onClearFilters= ()=>{
+        setFilters({
+            status:null,
+            agentId: "",
+            search: "",
+            page: 1,
+        });
+    }
+
    
     
     
@@ -27,14 +44,31 @@ export const MeetingsListHeader=()=>{
                 <PlusIcon />
                New Meetings
             </Button>
+            
 
             </div>
-            <div className="flex items-center gap-x-2 p-1">
+            <ScrollArea>
+                <div className="flex items-center gap-x-2 p-1">
                 <MeetingSearchFilters/>
+                <StatusFilter/>
+                <AgentIdFilter
+
+                />
+                 {isAnyFilterModified && (
+                    <Button variant={"outline"} onClick={onClearFilters}>
+                        <XCircleIcon className="size-4"/>
+                        Clear
+
+                    </Button>
+                 )}
                 
 
 
             </div>
+            <ScrollBar orientation="horizontal"/>
+
+            </ScrollArea>
+            
            
         </div>
         </>
