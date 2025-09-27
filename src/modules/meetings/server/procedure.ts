@@ -1,8 +1,9 @@
 import { db } from "@/db";
-import { z } from "zod";
-import { and, desc, eq, getTableColumns, ilike, count } from "drizzle-orm";
+import {  z } from "zod";
+import { and, desc, eq, getTableColumns, ilike, count, sql } from "drizzle-orm";
 import { agents, meetings } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+
 
 import {
   DEFAULT_PAGE,
@@ -15,6 +16,26 @@ import { meetingsInsertSchema, meetingsUpdateSchema } from "../schems";
 import { MeetingStatus } from "../types";
 
 export const meetingsRouter = createTRPCRouter({
+  remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { id, } = input;
+
+      const [removedMeetings] = await db
+        .delete(meetings)
+        
+        .where(and(eq(meetings.id, id), eq(meetings.userId, ctx.auth.user.id)))
+        .returning();
+
+      if (!removedMeetings) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      return removedMeetings;
+    }),
   create: protectedProcedure
     .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
@@ -59,8 +80,11 @@ export const meetingsRouter = createTRPCRouter({
       const [existmeeting] = await db
         .select({
           ...getTableColumns(meetings),
+          agent: agents,  
+           duration: sql<number>`EXTRACT(EPOCH FROM (${ meetings.endedAt} - ${ meetings.startedAt})) `.as("duration"),
         })
         .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
         );
@@ -101,6 +125,8 @@ export const meetingsRouter = createTRPCRouter({
       const data = await db
         .select({
           ...getTableColumns(meetings),
+          agent: agents,
+          duration: sql<number>`EXTRACT(EPOCH FROM (${ meetings.endedAt} - ${ meetings.startedAt})) `.as("duration"),
         })
         .from(meetings)
         .innerJoin(agents, eq(meetings.agentId, agents.id))
