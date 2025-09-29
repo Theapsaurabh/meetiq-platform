@@ -4,11 +4,12 @@ import Image from "next/image"
 
 interface Props {
   title?: string
-  description?: string
+  description?: string,
+  image?:string,
   action?: React.ReactNode
 }
 
-export const EmptyState = ({ title, description, action }: Props) => {
+export const EmptyState = ({ title, description, action, image= "/empty.svg" }: Props) => {
   return (
     <div className="flex items-center justify-center h-full">
       <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-2xl shadow-lg p-8 text-center border border-dashed border-red-300 
@@ -17,7 +18,7 @@ export const EmptyState = ({ title, description, action }: Props) => {
         <div className="relative flex items-center justify-center">
           <div className="absolute w-20 h-20 rounded-full bg-red-100 animate-ping opacity-75"></div>
           <Image
-            src="/logo.svg"  
+            src={image}
             alt="Logo"
             width={64}
             height={64}
